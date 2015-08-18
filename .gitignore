@@ -1,0 +1,11 @@
+# LaTex Build files to ignore
+*.log
+*.aux
+*.bbl
+*.blg
+*.lof
+*.lot
+*.synctex
+*.toc
+*.out
+*.synctex(busy)
