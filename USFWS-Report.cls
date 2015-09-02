@@ -1,12 +1,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
-%% USFWS-Report.cls (v0.2)
+%% USFWS-Report.cls
 %% Copyright (c) 2012 Nathan Zimpfer <nathan_zimpfer@fws.gov>
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newcommand{\usfwsreportversion}{0.2}%
-\newcommand{\usfwsreportupdated}{2013/05/02}% date of last change YYYY/MM/DD
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
 %%	REVISION HISTORY:
 %%
 %%	v0.1: 2012-Oct-26 Nathan Zimpfer
@@ -66,11 +62,15 @@
 %%%%%%%%%%%%        IDENTIFICATION        %%%%%%%%%%%%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{USFWS-Report}
-	[\usfwsreportupdated\space\usfwsreportversion\space(N.~Zimpfer, DMBM-PHAB)]%
-	
-\RequirePackage{lmodern}
-\RequirePackage[T1]{fontenc}
-\RequirePackage{textcomp}
+
+\def\@version{0.2}
+\def\@release{2015 August 17}
+\typeout{Document Style `USFWS-Report' v\@version, released \@release\space(N. Zimpfer, DMBM-PHAB)}
+
+\RequirePackage{xkeyval}
+%\RequirePackage{lmodern}
+%\RequirePackage[T1]{fontenc}
+%\RequirePackage{textcomp}
 \RequirePackage[obeyspaces,spaces]{url}
 \RequirePackage[usenames,dvipsnames]{xcolor}
 	\definecolor{airforceblue}{rgb}{0.36, 0.54, 0.66}
@@ -78,27 +78,19 @@
 	\definecolor{arsenic}{rgb}{0.23, 0.27, 0.29}
 \RequirePackage{tikz}
 	\usetikzlibrary{calc, positioning}	
-	
-% What is this doing?
-\def\usfwsreport@checkVersion#1{\edef\reserved@a{#1}%
-  \ifx \usfwsreport@version \reserved@a
-    \expandafter\@gobble
-  \else
-    \expandafter\@firstofone
-  \fi}
-\xdef\usfwsreport@version{\usfwsreportversion}
 
 %%%%%%%%%%%%         INITIAL CODE         %%%%%%%%%%%%
-%% setup internal variables for fonsize, page, and  columns
+%% setup internal variables for fonsize, page-sides
 %
 \newcommand{\@reportptsz}{}
 \newcommand{\@reportside}{}
 \newcommand{\@reportlnsp}{}
+\newcommand{\@coverstyle}{}
 
 %% Options switch for cover style heading format
 %
-\newif\if@coverstylenarrow
-\@coverstylenarrowtrue 		% default to narrow style
+%\newif\if@coverstylenarrow
+%\@coverstylenarrowtrue 		% default to narrow style
 
 %%%%%%%%%%%%      OPTION DECLARATION      %%%%%%%%%%%%
 %% Point Size options: change current setting.
@@ -114,7 +106,8 @@
 %% allow for narrow or wide headings on the cover. The default cover style
 %% will be narrow.
 %
-\DeclareOption{wideheading}{\@coverstylenarrowfalse}
+\DeclareOption{narrow}{\renewcommand{\@coverstyle}{narrow}}
+\DeclareOption{wide}{\renewcommand{\@coverstyle}{wide}}
 
 %% allow for 2 column reports. one column is the default setting.
 %\DeclareOption{twocolumn}{\renewcommand{\@twocolumn}{twocolumn}}
@@ -134,7 +127,7 @@
 %% Default settings.
 %
 \ExecuteOptions{11pt,letterpaper,twoside,%
-	openright,singlespaced,final}
+	openright,singlespaced,narrow,final}
 %
 %% Process options.
 %
@@ -249,7 +242,7 @@ TTY/Voice: 711\\
 %% Create layout for narrow cover heading. 
 %% The title falls 1pc below identification bar (fontsize 36pt).. The subtitle begins 1pc below the rule.
 %
-\newcommand{\@narrowheading}{
+\newcommand{\@narrow}{
 \begin{tikzpicture}[remember picture, overlay, anchor=south west, x=\paperwidth, y=\paperheight]
 	\node[yshift=-52pt, xshift=225pt] at (current page.north west) 
 	{\begin{tikzpicture}[remember picture, overlay]
@@ -271,8 +264,7 @@ TTY/Voice: 711\\
 			below=1pc of title, 
 			text width=27.5pc, 
 			inner sep=0pt] {\usefont{T1}{bcn}{m}{it} \fontsize{24}{24}\selectfont{\@subtitle\par}};	
-	\end{tikzpicture}
-	};	
+	\end{tikzpicture}};
 \end{tikzpicture}
 }
 
@@ -281,7 +273,7 @@ TTY/Voice: 711\\
 %% The title fall 1pc below identification bar (fontsize 36pt).  A rule with a width of 0.5pt falls 1pc 
 %% below the baseline of the title.  The subtitle begins 1pc below the rule.
 %
-\newcommand{\@wideheading}{
+\newcommand{\@wide}{
 \begin{tikzpicture}[remember picture, overlay, anchor=south west, x=\paperwidth, y=\paperheight]
 \node[yshift=-52pt, xshift=72pt] at (current page.north west)
 	{\begin{tikzpicture}[remember picture, overlay]
@@ -334,18 +326,18 @@ TTY/Voice: 711\\
 \newcommand{\makecover}{%
 	\thispagestyle{empty}
   \begingroup%
-	\if@coverstylenarrow
-		\@narrowheading 
+	\if@coverstylenarrowtrue
+		\@narrow
 	\else
-		\@wideheading
+		\@wide
 	\fi
 	
 		\if\@coverimage\empty
-			\vfil\null
+			\vfill\null
 		\else	
 		{	\vspace{2.5in}
 		\centering \includegraphics[width=500px, keepaspectratio, clip]{\@coverimage}}
-  		\vfil\null
+  		\vfill\null
 		\fi    	  
   \endgroup%
 }
